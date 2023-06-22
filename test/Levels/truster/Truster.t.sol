@@ -5,13 +5,14 @@ import {Utilities} from "../../utils/Utilities.sol";
 import "forge-std/Test.sol";
 
 import {DamnValuableToken} from "../../../src/Contracts/DamnValuableToken.sol";
-import {TrusterLenderPool} from "../../../src/Contracts/truster/TrusterLenderPool.sol";
+import {TrusterLenderPool, TrusterExploit} from "../../../src/Contracts/truster/TrusterLenderPool.sol";
 
 contract Truster is Test {
     uint256 internal constant TOKENS_IN_POOL = 1_000_000e18;
 
     Utilities internal utils;
     TrusterLenderPool internal trusterLenderPool;
+    TrusterExploit internal trusterExploit;
     DamnValuableToken internal dvt;
     address payable internal attacker;
 
@@ -41,7 +42,10 @@ contract Truster is Test {
         /**
          * EXPLOIT START *
          */
-
+        vm.startPrank(attacker);
+        trusterExploit = new TrusterExploit();
+        trusterExploit.attack(address(trusterLenderPool), address(dvt));
+        vm.stopPrank();
         /**
          * EXPLOIT END *
          */
